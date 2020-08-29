@@ -1,6 +1,10 @@
 # kotlin
 
 
+## Visual Code
+
+* [Visual Studio Code Setup](https://kotlin-code.com/ide/visual-studio-code/setup/)
+
 ## Books
 * Kotlin in Action , Manning, 2016
 

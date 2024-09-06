@@ -1,3 +1,7 @@
+
+
+
+
 `KotlinToJVMBytecodeCompiler.parsePsiFile()`은 실제로 존재하지 않으며, Kotlin 컴파일러 API에서 직접적으로 PSI 파일을 가져오는 방식이 조금 더 복잡할 수 있습니다. 이를 해결하기 위해 IntelliJ 플랫폼을 기반으로 한 Kotlin PSI를 사용하는 방법을 다시 설명드리겠습니다.
 
 ### Kotlin PSI를 사용한 클래스 및 메서드 추출 예시

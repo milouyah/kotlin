@@ -1,3 +1,110 @@
+`accept` 메서드를 사용해서 `KtFile`을 순회하려고 하는데, 하위 요소로 접근되지 않는다면, 기본적으로 `accept` 메서드가 모든 하위 노드를 순회하지 않는 경우가 있을 수 있습니다. 이 경우 하위 노드들까지 직접적으로 탐색할 수 있도록 `acceptChildren`을 활용해야 합니다.
+
+Kotlin PSI 트리를 순회하는 방법은 `accept` 또는 `acceptChildren`을 사용하는 방법이 있으며, 특히 하위 요소를 순회하려면 `acceptChildren`을 사용해야 합니다. `acceptChildren`은 현재 노드의 자식 요소들을 재귀적으로 순회하는 데 사용됩니다.
+
+### 해결 방법: `acceptChildren` 사용
+
+`acceptChildren` 메서드를 사용하여 하위 노드를 직접 탐색할 수 있습니다. 이를 통해 `KtFile` 내부의 클래스, 함수, 기타 요소들을 재귀적으로 탐색할 수 있습니다.
+
+### 수정된 코드 예시
+
+```kotlin
+import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtVisitorVoid
+import com.intellij.openapi.util.Disposer
+import com.intellij.core.JavaCoreApplicationEnvironment
+import com.intellij.psi.PsiFileFactory
+import org.jetbrains.kotlin.idea.KotlinFileType
+import java.io.File
+
+fun main() {
+    // Kotlin 파일 경로 설정
+    val filePath = "src/main/kotlin/YourKotlinFile.kt"
+    val kotlinFileContent = File(filePath).readText()
+
+    // Disposable 생성
+    val disposable = Disposer.newDisposable()
+
+    // IntelliJ Core Application 환경 설정
+    val environment = JavaCoreApplicationEnvironment(disposable)
+    val project = environment.project
+    val psiFileFactory = PsiFileFactory.getInstance(project)
+
+    // Kotlin 파일을 PSI 파일로 변환
+    val psiFile = psiFileFactory.createFileFromText(
+        "YourKotlinFile.kt",
+        KotlinFileType.INSTANCE,
+        kotlinFileContent
+    ) as KtFile
+
+    // 하위 노드들까지 모두 순회하도록 acceptChildren을 사용하여 클래스 및 메서드 탐색
+    psiFile.accept(object : KtVisitorVoid() {
+        override fun visitClass(klass: KtClass) {
+            println("Class: ${klass.name}")
+            super.visitClass(klass)
+        }
+
+        override fun visitNamedFunction(function: KtNamedFunction) {
+            println("Method: ${function.name}")
+            super.visitNamedFunction(function)
+        }
+    })
+
+    // 하위 요소 탐색 (acceptChildren 사용)
+    psiFile.acceptChildren(object : KtVisitorVoid() {
+        override fun visitElement(element: PsiElement) {
+            println("Element: ${element::class.simpleName} -> ${element.text}")
+            super.visitElement(element)
+        }
+
+        override fun visitClass(klass: KtClass) {
+            println("Class: ${klass.name}")
+            super.visitClass(klass)
+        }
+
+        override fun visitNamedFunction(function: KtNamedFunction) {
+            println("Method: ${function.name}")
+            super.visitNamedFunction(function)
+        }
+    })
+
+    // 메모리 해제
+    Disposer.dispose(disposable)
+}
+```
+
+### 설명:
+
+1. **`acceptChildren` 사용**:
+   - `acceptChildren`은 현재 요소의 모든 자식 요소를 재귀적으로 방문하는 데 사용됩니다. 이 메서드를 사용하면 `KtFile`의 하위 요소들까지 모두 탐색할 수 있습니다.
+   
+2. **하위 노드 출력**:
+   - 각 `PsiElement`에 대해 `visitElement` 메서드를 사용하여 모든 하위 노드의 요소를 출력합니다. 이렇게 하면 파일 내의 모든 클래스, 메서드, 함수, 기타 구문 요소들을 확인할 수 있습니다.
+
+3. **재귀적 탐색**:
+   - `visitElement`와 `acceptChildren`을 사용하면 재귀적으로 트리의 모든 하위 노드를 탐색할 수 있으므로, 클래스와 메서드가 포함된 노드까지 접근할 수 있습니다.
+
+### 디버깅
+
+만약 여전히 클래스나 메서드가 보이지 않는다면, `visitElement` 메서드 내에서 요소를 출력하여 실제로 어떤 요소들이 파싱되고 있는지 확인해 보세요. 이를 통해 `KtClass`나 `KtNamedFunction`이 파싱되지 않는 이유를 파악할 수 있습니다.
+
+```kotlin
+override fun visitElement(element: PsiElement) {
+    println("Visiting: ${element::class.simpleName} -> ${element.text}")
+    super.visitElement(element)
+}
+```
+
+이 출력 결과를 통해 파일의 트리 구조를 파악하고, 문제가 되는 부분을 해결할 수 있습니다.
+
+### 결론
+
+1. `accept`는 해당 노드에서 재귀적으로 하위 노드들을 탐색하지 않을 수 있습니다. 대신 `acceptChildren`을 사용하여 하위 노드들까지 탐색해야 합니다.
+2. `acceptChildren`을 사용하면 `KtFile`의 모든 하위 요소를 재귀적으로 순회할 수 있으며, 이를 통해 클래스와 메서드 등의 구조를 파악할 수 있습니다.
+3. 요소 탐색 중에는 각 노드의 정보를 출력하여 어떤 구조가 파싱되고 있는지 확인하는 것이 문제 해결에 도움이 됩니다.
+
 `KtClass`가 트리 상에 있는데도 `getClasses()`로 직접 접근할 수 없는 이유는 PSI 트리와 Kotlin의 요소 처리 방식에 차이가 있기 때문입니다. Kotlin에서의 클래스는 Java와 달리 여러 구문적 특성이나 변형이 존재하며, Kotlin PSI 구조는 이러한 다양한 구문 요소들을 다르게 처리하기 때문입니다. `getClasses()`는 주로 Java PSI에서 사용되는 방식이므로 Kotlin에서는 예상대로 동작하지 않을 수 있습니다.
 
 ### 차이점 요약:

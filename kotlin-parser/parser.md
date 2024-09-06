@@ -1,4 +1,100 @@
+`package`는 나오는데 `class`와 `method`가 제대로 나오지 않는다면, 해당 파일이 올바르게 파싱되지 않거나 파일 내에 클래스와 메서드가 없을 가능성이 있습니다. 또한, PSI 트리가 올바르게 생성되지 않았을 수 있습니다. 이를 해결하기 위해 몇 가지 추가적인 디버깅과 수정이 필요할 수 있습니다.
 
+### 1. 디버깅: 파일에 클래스가 있는지 확인
+
+먼저, Kotlin 파일에 클래스와 메서드가 제대로 포함되어 있는지 확인하십시오. 만약 클래스와 메서드가 존재하는데도 추출되지 않는다면, `KtVisitorVoid`를 사용한 코드에 문제가 있을 수 있습니다.
+
+### 2. 문제 원인 및 해결 방안
+
+#### 파일 구조 파악
+`KtVisitorVoid`가 파일 구조를 제대로 순회하고 있는지 확인해야 합니다. 패키지 선언은 `package`로 나왔으니, 클래스를 찾기 위해 파일을 좀 더 면밀히 탐색할 수 있습니다.
+
+#### `visitClass`와 `visitNamedFunction` 문제 해결
+
+먼저, `accept`를 통해 파일의 루트 요소를 탐색하지만, 해당 루트 요소가 클래스나 메서드에 도달하지 못할 가능성도 있습니다. 따라서, 디버깅을 위해 파일 구조를 출력하고 각 요소를 살펴보겠습니다.
+
+### 3. 전체 파일 트리 출력
+
+파일의 전체 구조를 한 번 출력해보면, 어떤 요소가 파싱되고 있는지 알 수 있습니다. 이를 위해 아래와 같은 코드를 사용할 수 있습니다.
+
+```kotlin
+import com.intellij.core.JavaCoreApplicationEnvironment
+import com.intellij.openapi.util.Disposer
+import com.intellij.psi.PsiFileFactory
+import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtVisitorVoid
+import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtElement
+import org.jetbrains.kotlin.idea.KotlinFileType
+import java.io.File
+
+fun main() {
+    // Kotlin 파일 경로 설정
+    val filePath = "src/main/kotlin/YourKotlinFile.kt"
+    val kotlinFileContent = File(filePath).readText()
+
+    // Disposable 생성
+    val disposable = Disposer.newDisposable()
+
+    // IntelliJ Core Application 환경 설정
+    val environment = JavaCoreApplicationEnvironment(disposable)
+    val project = environment.project
+    val psiFileFactory = PsiFileFactory.getInstance(project)
+
+    // Kotlin 파일을 PSI 파일로 변환
+    val psiFile = psiFileFactory.createFileFromText(
+        "YourKotlinFile.kt",
+        KotlinFileType.INSTANCE,
+        kotlinFileContent
+    ) as KtFile
+
+    // PSI 트리 구조를 출력하는 함수
+    fun printPsiTree(element: KtElement, indent: String = "") {
+        println("$indent${element::class.simpleName}: ${element.text}")
+        element.acceptChildren(object : KtVisitorVoid() {
+            override fun visitElement(element: KtElement) {
+                printPsiTree(element, "$indent  ")
+            }
+        })
+    }
+
+    // 트리 출력
+    printPsiTree(psiFile)
+
+    // 메모리 해제
+    Disposer.dispose(disposable)
+}
+```
+
+### 4. 설명
+
+- **전체 트리 출력**: 이 코드는 `KtFile`의 모든 요소를 재귀적으로 탐색하면서 파일의 트리 구조를 출력합니다. 이를 통해 클래스나 메서드가 어디에 있는지, 또는 왜 탐색되지 않는지 파악할 수 있습니다.
+- **`acceptChildren` 사용**: 파일의 모든 자식 요소를 순회하며 각 요소의 타입과 내용을 출력합니다. 이를 통해 `package`, `class`, `method`와 같은 요소들이 어떻게 파싱되고 있는지 확인할 수 있습니다.
+
+### 5. 실행 및 결과 확인
+
+이 코드를 실행하면 파일에 포함된 모든 요소가 출력됩니다. 이 출력 결과를 통해 클래스와 메서드가 파일의 어떤 위치에 있는지, 그리고 왜 탐색되지 않았는지 파악할 수 있습니다.
+
+출력된 PSI 트리에서 클래스와 메서드를 찾을 수 있다면, 그에 맞춰 `visitClass`와 `visitNamedFunction`의 위치를 조정하여 원하는 요소를 추출할 수 있습니다.
+
+### 6. 최종 클래스 및 메서드 탐색 코드 (트리 확인 후 수정 가능)
+
+```kotlin
+psiFile.accept(object : KtVisitorVoid() {
+    override fun visitClass(klass: KtClass) {
+        println("Class: ${klass.name}")
+        super.visitClass(klass)
+    }
+
+    override fun visitNamedFunction(function: KtNamedFunction) {
+        println("Method: ${function.name}")
+        super.visitNamedFunction(function)
+    }
+})
+```
+
+이제 출력된 구조를 확인한 후, 클래스와 메서드가 올바르게 탐색되고 있는지 확인한 후 필요한 부분을 수정해 나갈 수 있습니다.
 
 
 

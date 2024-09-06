@@ -1,3 +1,96 @@
+`KtClass`가 트리 상에 있는데도 `getClasses()`로 직접 접근할 수 없는 이유는 PSI 트리와 Kotlin의 요소 처리 방식에 차이가 있기 때문입니다. Kotlin에서의 클래스는 Java와 달리 여러 구문적 특성이나 변형이 존재하며, Kotlin PSI 구조는 이러한 다양한 구문 요소들을 다르게 처리하기 때문입니다. `getClasses()`는 주로 Java PSI에서 사용되는 방식이므로 Kotlin에서는 예상대로 동작하지 않을 수 있습니다.
+
+### 차이점 요약:
+
+- **`getClasses()` 메서드**는 `PsiClass` 인터페이스를 반환하며, 이는 주로 **Java 파일**에서 사용되는 방식입니다. 하지만, Kotlin 클래스는 `KtClass`로 표현되기 때문에 `PsiClass`가 아닌 **Kotlin PSI 구조**로 파싱됩니다.
+- Kotlin 클래스는 `KtClass` 또는 `KtObjectDeclaration` 등의 다양한 PSI 요소로 표현될 수 있습니다. 따라서, `getClasses()`는 Java 스타일의 클래스만 반환할 수 있어 Kotlin에서 제대로 작동하지 않습니다.
+
+### 해결 방안:
+
+Kotlin의 `KtClass` 요소를 탐색할 때는 **PSI 트리 탐색 방법**이나 **Kotlin PSI 전용 메서드**를 사용해야 합니다. `getClasses()` 대신에 Kotlin PSI의 `accept`나 `KtVisitorVoid` 등을 사용하여 직접적으로 `KtClass` 요소를 탐색하는 것이 필요합니다.
+
+### 클래스 탐색 방법
+
+`KtFile`에서 `KtClass`를 찾으려면 직접적으로 `KtVisitorVoid` 또는 `KtElement`를 사용해 트리를 순회하는 방식이 적합합니다. 다음은 `getClasses()` 대신 트리에서 직접 `KtClass`를 찾는 예시입니다.
+
+### 코드 예시:
+
+```kotlin
+import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtVisitorVoid
+import com.intellij.psi.PsiFileFactory
+import org.jetbrains.kotlin.idea.KotlinFileType
+import java.io.File
+
+fun main() {
+    // Kotlin 파일 경로 설정
+    val filePath = "src/main/kotlin/YourKotlinFile.kt"
+    val kotlinFileContent = File(filePath).readText()
+
+    // IntelliJ Core Application 환경 설정
+    val disposable = Disposer.newDisposable()
+    val environment = JavaCoreApplicationEnvironment(disposable)
+    val project = environment.project
+    val psiFileFactory = PsiFileFactory.getInstance(project)
+
+    // Kotlin 파일을 PSI 파일로 변환
+    val psiFile = psiFileFactory.createFileFromText(
+        "YourKotlinFile.kt",
+        KotlinFileType.INSTANCE,
+        kotlinFileContent
+    ) as KtFile
+
+    // KtClass와 KtNamedFunction을 탐색
+    psiFile.accept(object : KtVisitorVoid() {
+        override fun visitClass(klass: KtClass) {
+            println("Class: ${klass.name}")
+            super.visitClass(klass)
+        }
+
+        override fun visitNamedFunction(function: KtNamedFunction) {
+            println("Method: ${function.name}")
+            super.visitNamedFunction(function)
+        }
+    })
+}
+```
+
+### 설명:
+
+1. **KtVisitorVoid를 사용한 탐색**:
+   - `KtVisitorVoid`를 사용해 트리를 순회하며, `visitClass()`를 통해 `KtClass` 객체를 직접 탐색합니다.
+   - `KtClass`는 Kotlin에서 클래스 선언을 나타내는 PSI 요소입니다. 이와 마찬가지로, 메서드는 `visitNamedFunction()`을 통해 탐색할 수 있습니다.
+
+2. **getClasses() 대신**:
+   - `getClasses()`는 Java 스타일의 클래스를 찾기 위해 사용되며, Kotlin 파일에서는 사용할 수 없습니다. Kotlin에서는 `KtVisitorVoid`와 같은 구조 탐색 방식을 사용해야 합니다.
+
+### 추가 디버깅 방법:
+
+만약 여전히 클래스가 보이지 않는다면, 전체 트리를 출력하는 방법으로 구조를 다시 확인할 수 있습니다. 트리를 통해 `KtClass`가 어디에 위치해 있는지 확인해보세요.
+
+```kotlin
+fun printPsiTree(element: PsiElement, indent: String = "") {
+    println("$indent${element::class.simpleName}: ${element.text}")
+    element.acceptChildren(object : KtVisitorVoid() {
+        override fun visitElement(element: PsiElement) {
+            printPsiTree(element, "$indent  ")
+        }
+    })
+}
+
+// psiFile을 이용하여 트리 출력
+printPsiTree(psiFile)
+```
+
+이 코드를 통해 `KtClass`가 정확히 어떻게 파싱되고 있는지 확인할 수 있습니다.
+
+### 결론:
+
+`getClasses()`는 Java PSI에서 사용되는 방식으로 Kotlin에서는 예상대로 동작하지 않을 수 있습니다. Kotlin의 클래스와 메서드를 탐색하려면 Kotlin PSI에 맞는 `KtVisitorVoid`와 같은 방식으로 트리를 순회하는 것이 올바른 접근입니다.
+
+
 `package`는 나오는데 `class`와 `method`가 제대로 나오지 않는다면, 해당 파일이 올바르게 파싱되지 않거나 파일 내에 클래스와 메서드가 없을 가능성이 있습니다. 또한, PSI 트리가 올바르게 생성되지 않았을 수 있습니다. 이를 해결하기 위해 몇 가지 추가적인 디버깅과 수정이 필요할 수 있습니다.
 
 ### 1. 디버깅: 파일에 클래스가 있는지 확인

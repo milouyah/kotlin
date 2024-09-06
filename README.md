@@ -1,12 +1,11 @@
-# kotlin
+# Kotlin
+
+* [companion object](./kotlin-companion-object.md)
+* [Test coverage](./kotlin-test-coverage.md)
+
+## [Kotlin Parser](./kotlin-parser/README.md)
 
 
-## Visual Code
-
-* [Visual Studio Code Setup](https://kotlin-code.com/ide/visual-studio-code/setup/)
-
-## Books
-* Kotlin in Action , Manning, 2016
 
 ## Links
 

@@ -1,3 +1,65 @@
+`PsiFileFactory`로 Kotlin 파일을 생성할 때 패키지 이름을 가져올 수 없는 이유는 `PsiFileFactory`를 통해 생성된 파일이 전체적으로 파싱되지 않았거나, 기본적으로 `PsiFile`이 Kotlin의 `KtFile`로 파싱되지 않기 때문일 수 있습니다.
+
+`PsiFileFactory`는 일반적인 파일을 생성하는 데 사용되지만, Kotlin 구문을 인식하고 `KtFile`로 동작하도록 확실히 처리해야 합니다.
+
+### 문제 해결 방법
+
+1. **Kotlin을 위한 파일 생성 시 언어 설정**
+   - `PsiFileFactory`에서 파일을 생성할 때, `KotlinLanguage`를 명시적으로 사용하여 파일이 Kotlin 파일로 인식되도록 해야 합니다.
+   
+2. **생성된 파일이 `KtFile`로 캐스팅되어 있는지 확인**
+
+### 코드 예시
+
+```kotlin
+import com.intellij.psi.PsiFileFactory
+import org.jetbrains.kotlin.idea.KotlinLanguage
+import org.jetbrains.kotlin.psi.KtFile
+import com.intellij.openapi.project.Project
+
+fun createKotlinFile(fileName: String, fileContent: String, project: Project): KtFile? {
+    val psiFileFactory = PsiFileFactory.getInstance(project)
+
+    // Kotlin 언어를 명시하여 파일을 생성
+    val psiFile = psiFileFactory.createFileFromText(fileName, KotlinLanguage.INSTANCE, fileContent)
+
+    // 생성된 파일을 KtFile로 캐스팅
+    return psiFile as? KtFile
+}
+```
+
+### 패키지 이름 가져오기
+
+생성된 `KtFile` 객체에서 패키지 이름을 정상적으로 가져오려면, 패키지 선언이 파일 내용에 포함되어 있어야 합니다.
+
+예시로 패키지 이름을 포함한 파일을 생성하고 패키지 이름을 가져오는 방법은 다음과 같습니다:
+
+```kotlin
+fun main() {
+    val kotlinFileContent = """
+        package com.example.test
+        
+        class MyClass {
+        }
+    """.trimIndent()
+
+    val ktFile = createKotlinFile("MyClass.kt", kotlinFileContent, project)
+
+    // 패키지 이름을 가져오기
+    ktFile?.let {
+        println(it.packageFqName.asString()) // 출력: com.example.test
+    }
+}
+```
+
+### 요약
+- `PsiFileFactory`로 Kotlin 파일을 생성할 때, **Kotlin 언어를 명시적으로 설정**하여 파일을 생성해야 합니다.
+- 생성된 파일이 `KtFile`로 **정확하게 캐스팅**되었는지 확인해야 합니다.
+- 패키지 이름을 가져오려면 파일 내용에 **올바른 패키지 선언**이 포함되어 있어야 합니다.
+
+이렇게 하면 `PsiFileFactory`로 생성된 파일에서도 패키지 이름을 정상적으로 가져올 수 있을 것입니다.
+
+
 # 
 Kotlin 파일에 `package` 선언이 있는데도 `packageFqName`이 `null`을 반환하는 경우는 예상치 못한 상황일 수 있습니다. 일반적으로 `packageFqName`은 패키지가 선언되어 있으면 정상적으로 값을 반환해야 합니다. 이런 문제가 발생하는 몇 가지 가능한 원인은 다음과 같습니다.
 

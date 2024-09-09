@@ -1,10 +1,10 @@
 # Kotlin
 
-* [companion object](./kotlin-companion-object.md)
+* [Companion object](./kotlin-companion-object.md)
+* [Constructor](./kotlin-constructor.md)
 * [Test coverage](./kotlin-test-coverage.md)
 
-## [Kotlin Parser](./kotlin-parser/README.md)
-
+# [Kotlin Parser](./kotlin-parser/README.md)
 
 
 ## Links

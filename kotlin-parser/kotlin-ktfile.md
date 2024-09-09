@@ -1,3 +1,5 @@
+# KtFile
+
 `PsiFileFactory`로 Kotlin 파일을 생성할 때 패키지 이름을 가져올 수 없는 이유는 `PsiFileFactory`를 통해 생성된 파일이 전체적으로 파싱되지 않았거나, 기본적으로 `PsiFile`이 Kotlin의 `KtFile`로 파싱되지 않기 때문일 수 있습니다.
 
 `PsiFileFactory`는 일반적인 파일을 생성하는 데 사용되지만, Kotlin 구문을 인식하고 `KtFile`로 동작하도록 확실히 처리해야 합니다.

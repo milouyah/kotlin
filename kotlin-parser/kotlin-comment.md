@@ -1,3 +1,71 @@
+`PsiTreeUtil.collectElementsOfType`은 기본적으로 모든 자식 노드를 포함한 전체 트리에서 요소를 수집합니다. 하지만, 자식 노드를 제외하고 최상위 노드에서만 주석을 얻으려면, 트리를 직접 순회하면서 자식 노드를 무시하는 방식으로 주석을 추출해야 합니다.
+
+이를 위해 **직접 트리를 순회하면서** 특정 깊이의 노드만 처리하거나, **`KtFile`의 직속 자식**들만 대상으로 처리하는 방법을 사용할 수 있습니다.
+
+### 최상위 노드에서만 주석 추출하기
+
+`KtFile`의 **직속 자식 노드**만을 순회하면서 `PsiComment` 타입의 노드만 추출하는 코드를 작성할 수 있습니다.
+
+다음은 최상위 주석(즉, 직속 자식 주석)만 추출하는 예시입니다:
+
+```kotlin
+import com.intellij.psi.PsiComment
+import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.psiUtil.children
+
+// 최상위 주석만 추출하는 함수
+fun extractTopLevelComments(ktFile: KtFile): List<String> {
+    // KtFile의 직속 자식들만 순회
+    return ktFile.children
+        .filterIsInstance<PsiComment>()  // PsiComment 타입의 노드만 필터링
+        .map { it.text }  // 주석의 텍스트만 추출
+}
+```
+
+### 사용 예시:
+
+```kotlin
+fun main() {
+    val kotlinFileContent = """
+        package com.example.test
+        
+        // This is a top-level comment
+        class MyClass {
+            /*
+             This is a multi-line comment inside the class, not top-level
+             */
+            fun myFunction() {
+                // This is a single-line comment inside a function
+            }
+        }
+    """.trimIndent()
+
+    val ktFile = createKotlinFile("MyClass.kt", kotlinFileContent, project)
+
+    // 최상위 주석 추출
+    val topLevelComments = extractTopLevelComments(ktFile)
+
+    // 추출된 최상위 주석 출력
+    topLevelComments.forEach { comment ->
+        println("Top-level Comment: $comment")
+    }
+}
+```
+
+### 설명:
+
+1. **`ktFile.children`**: `ktFile`의 직속 자식 노드들만 가져옵니다. 즉, 클래스 내부나 함수 내부에 있는 자식 노드는 제외하고 최상위 노드만 순회합니다.
+2. **`filterIsInstance<PsiComment>()`**: 자식들 중에서 `PsiComment` 타입의 노드들만 필터링합니다.
+3. **`map { it.text }`**: 각 주석의 텍스트만 추출하여 리스트로 반환합니다.
+
+### 주의 사항:
+- 이 코드는 **최상위 수준의 주석**(클래스 선언 바깥이나 패키지 선언 옆에 있는 주석)만 추출합니다.
+- 클래스나 함수 내부에 있는 주석은 포함되지 않으므로, 특정 위치의 주석만 파싱하고자 할 때 유용합니다.
+
+이렇게 하면 하위(자식) 노드를 무시하고 최상위 주석만 가져올 수 있습니다.
+
+
+
 `KtFile`에서 주석(comment)을 추출하고 파싱하려면 Kotlin PSI(Program Structure Interface)를 사용해야 합니다. Kotlin PSI는 Kotlin 코드의 구조를 분석할 수 있는 API를 제공하며, 주석 역시 특정 PSI 노드로 표현됩니다. 주석은 일반적으로 `PsiComment` 타입의 객체로 저장됩니다.
 
 ### 주석 추출 방법

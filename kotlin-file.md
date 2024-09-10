@@ -1,3 +1,44 @@
+# readString()
+
+`Path` 객체를 사용하여 파일의 내용을 읽으려면 `Files.readAllBytes()` 또는 `Files.readString()`과 같은 메서드를 사용할 수 있습니다. Kotlin의 `readText()`는 `File` 객체에 사용되지만, `Path`를 사용할 때는 `java.nio.file.Files`의 메서드를 활용하는 것이 좋습니다.
+
+다음은 `Path` 객체로 파일의 내용을 텍스트로 읽는 방법입니다:
+
+```kotlin
+import java.nio.file.Files
+import java.nio.file.Paths
+
+fun readFileAsText(filePath: String): String {
+    val path = Paths.get(filePath)
+    return Files.readString(path)  // 파일의 내용을 텍스트로 읽기
+}
+
+fun main() {
+    val text = readFileAsText("/your/file/path.txt")
+    println(text)
+}
+```
+
+여기서 `Files.readString(path)`는 파일의 전체 내용을 `String`으로 반환해 줍니다. 이 메서드는 Java 11 이상에서 사용할 수 있으며, 만약 Java 11 이전 버전을 사용 중이라면 `Files.readAllBytes(path)`를 사용해 파일 내용을 `ByteArray`로 읽은 다음 이를 문자열로 변환해야 합니다:
+
+```kotlin
+import java.nio.file.Files
+import java.nio.file.Paths
+
+fun readFileAsText(filePath: String): String {
+    val path = Paths.get(filePath)
+    return String(Files.readAllBytes(path))  // 바이트 배열을 읽고 String으로 변환
+}
+
+fun main() {
+    val text = readFileAsText("/your/file/path.txt")
+    println(text)
+}
+```
+
+이렇게 하면 `Path` 객체로부터 텍스트 파일의 내용을 쉽게 읽을 수 있습니다.
+
+
 # `it`
 
 코드에서 `it`는 **람다 표현식에서 사용되는 기본 변수**입니다. Kotlin에서는 람다 표현식에서 매개변수가 하나일 때 `it`이라는 이름으로 자동으로 제공됩니다.

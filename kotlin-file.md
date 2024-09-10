@@ -1,3 +1,36 @@
+# File filtering
+Kotlin에서 파일 목록을 만들 때 파일의 확장자에 따라 Java 파일과 Kotlin 파일을 필터링하고 싶다면, `Files.walk()`를 사용하여 원하는 확장자만 포함되도록 필터를 추가할 수 있습니다. 확장자를 기준으로 파일을 필터링하는 방법은 간단하게 `filter`를 사용하여 처리할 수 있습니다.
+
+예를 들어, `.java`와 `.kt` 파일을 필터링하는 코드를 작성해 보겠습니다:
+
+```kotlin
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.Path
+import kotlin.streams.toList
+
+fun listJavaAndKotlinFiles(dirPath: String): List<Path> {
+    return Files.walk(Paths.get(dirPath))
+        .filter { Files.isRegularFile(it) }  // 파일만 필터링
+        .filter { it.toString().endsWith(".java") || it.toString().endsWith(".kt") }  // .java 또는 .kt 파일 필터링
+        .toList()
+}
+
+fun main() {
+    val files = listJavaAndKotlinFiles("/your/directory/path")
+    files.forEach { println(it.fileName) }  // 파일 이름 출력
+}
+```
+
+### 설명:
+1. **`Files.walk(Paths.get(dirPath))`**: 지정한 디렉토리의 파일과 하위 디렉토리를 재귀적으로 탐색합니다.
+2. **`filter { Files.isRegularFile(it) }`**: 파일만 선택하고, 디렉토리는 제외합니다.
+3. **`filter { it.toString().endsWith(".java") || it.toString().endsWith(".kt") }`**: `.java` 또는 `.kt`로 끝나는 파일들만 필터링합니다.
+4. **`toList()`**: 스트림을 리스트로 변환하여 결과를 반환합니다.
+5. **`it.fileName`**: 파일 이름을 출력합니다.
+
+이렇게 하면 주어진 디렉토리에서 `.java`와 `.kt` 확장자를 가진 파일만을 손쉽게 리스트로 만들 수 있습니다.
+
 # readString()
 
 `Path` 객체를 사용하여 파일의 내용을 읽으려면 `Files.readAllBytes()` 또는 `Files.readString()`과 같은 메서드를 사용할 수 있습니다. Kotlin의 `readText()`는 `File` 객체에 사용되지만, `Path`를 사용할 때는 `java.nio.file.Files`의 메서드를 활용하는 것이 좋습니다.

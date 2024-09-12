@@ -1,3 +1,112 @@
+`kotlinx-dataframe` 라이브러리를 Maven에서 제대로 가져오지 못하는 경우는 몇 가지 이유가 있을 수 있습니다. 해결책을 시도하기 위해 몇 가지 방법을 안내드리겠습니다.
+
+### 1. 올바른 저장소 추가
+
+Maven 프로젝트에서 `kotlinx-dataframe`을 사용하려면 `mavenCentral()` 저장소에서 찾을 수 있도록 `pom.xml`에 저장소 정보를 추가해야 할 수 있습니다. Maven Central 저장소를 명시적으로 추가하는 방법은 다음과 같습니다:
+
+```xml
+<repositories>
+    <repository>
+        <id>central</id>
+        <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+</repositories>
+```
+
+이 부분을 `pom.xml`의 `<repositories>` 섹션에 추가하세요.  
+
+### 2. 정확한 의존성 확인
+
+Maven에서 `kotlinx-dataframe`의 의존성이 제대로 설정되지 않았을 수 있습니다. 최신 버전의 `kotlinx-dataframe`이 Maven Central에 배포되지 않았거나 의존성 설정이 잘못되었을 수 있습니다.
+
+따라서 Maven Central에 등록된 최신 버전의 `kotlinx-dataframe` 의존성을 사용하는 것이 중요합니다. 다음처럼 의존성을 추가할 수 있습니다.
+
+```xml
+<dependency>
+    <groupId>org.jetbrains.kotlinx</groupId>
+    <artifactId>dataframe</artifactId>
+    <version>0.9.0</version> <!-- 현재 시점의 최신 버전 확인 필요 -->
+</dependency>
+```
+
+`<version>`에 들어갈 최신 버전은 [Maven Central](https://search.maven.org/)에서 확인할 수 있습니다.
+
+### 3. Kotlin 플러그인과 버전 호환성 확인
+
+Maven에서 Kotlin을 사용할 때는 `kotlin-maven-plugin`이 제대로 설정되어 있어야 합니다. 이미 Maven 설정에서 `kotlin-maven-plugin`을 추가했지만, Kotlin 버전과의 호환성을 다시 한번 확인해보세요. 
+
+예시로, `kotlin.version`을 1.8.0 이상으로 설정하는 것을 추천드립니다:
+
+```xml
+<properties>
+    <kotlin.version>1.8.0</kotlin.version>
+</properties>
+```
+
+### 최종적으로 수정된 `pom.xml` 예시
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>kotlin-dataframe-example</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <kotlin.version>1.8.0</kotlin.version> <!-- Kotlin 버전 -->
+        <dataframe.version>0.9.0</dataframe.version> <!-- kotlinx-dataframe 버전 -->
+    </properties>
+
+    <dependencies>
+        <!-- Kotlin Standard Library -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+
+        <!-- kotlinx-dataframe -->
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>dataframe</artifactId>
+            <version>${dataframe.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Kotlin Maven Plugin -->
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+    </repositories>
+</project>
+```
+
+이렇게 설정하고 다시 빌드를 시도하면 `kotlinx-dataframe` 라이브러리가 정상적으로 가져와질 것입니다.
+
+
 # Maven
 
 `kotlinx-dataframe`은 Gradle에서 주로 사용되지만, Maven에서도 사용할 수 있습니다. Maven 프로젝트에서 Kotlin DataFrame 라이브러리를 사용하려면, `pom.xml` 파일에 다음과 같은 의존성을 추가하면 됩니다.

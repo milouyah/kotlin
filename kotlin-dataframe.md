@@ -1,3 +1,98 @@
+# Maven
+
+`kotlinx-dataframe`은 Gradle에서 주로 사용되지만, Maven에서도 사용할 수 있습니다. Maven 프로젝트에서 Kotlin DataFrame 라이브러리를 사용하려면, `pom.xml` 파일에 다음과 같은 의존성을 추가하면 됩니다.
+
+먼저, `pom.xml` 파일에 Kotlin과 관련된 플러그인과 라이브러리를 추가하세요.
+
+### Maven 설정 (pom.xml)
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>kotlin-dataframe-example</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <kotlin.version>1.8.0</kotlin.version> <!-- Kotlin 버전 -->
+        <dataframe.version>0.8.0</dataframe.version> <!-- kotlinx-dataframe 버전 -->
+    </properties>
+
+    <dependencies>
+        <!-- Kotlin Standard Library -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+
+        <!-- kotlinx-dataframe -->
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>dataframe</artifactId>
+            <version>${dataframe.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Kotlin Maven Plugin -->
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+이 설정으로 `kotlinx-dataframe` 라이브러리를 Maven 프로젝트에서 사용할 수 있습니다. 라이브러리와의 의존성 관리는 Gradle뿐 아니라 Maven에서도 문제없이 동작합니다.
+
+이후에 동일한 코드를 사용하여 데이터프레임을 만들고, 새로운 row를 추가할 수 있습니다. `kotlinx-dataframe`은 특정 빌드 도구와는 무관하게 Kotlin 코드 내에서 동작합니다.
+
+### 데이터프레임 생성 및 row 추가 코드 (Maven에서도 동일하게 동작)
+
+```kotlin
+import org.jetbrains.kotlinx.dataframe.api.*
+
+fun main() {
+    // 기존 데이터 프레임 생성
+    val df = dataFrameOf(
+        "name", "age", "school"
+    )(
+        "Alice", 20, "High School",
+        "Bob", 22, "University",
+        "Charlie", 19, "High School"
+    )
+
+    // 새로운 row 추가
+    val newRow = mapOf(
+        "name" to "David",
+        "age" to 23,
+        "school" to "Graduate School"
+    )
+    
+    val updatedDf = df.append(newRow)
+
+    // 업데이트된 데이터 프레임 출력
+    println(updatedDf)
+}
+```
+
+따라서 Maven을 사용해서도 동일하게 Kotlin DataFrame을 다룰 수 있으며, 새로운 row 추가 기능 역시 문제없이 작동합니다.
+
 # Add row
 `kotlinx-dataframe`을 사용해서 기존 데이터프레임에 새로운 row를 추가하는 방법은 `append` 함수를 사용하는 것입니다. 예를 들어, 위에서 생성한 데이터프레임에 새로운 row를 추가하는 코드는 다음과 같습니다:
 

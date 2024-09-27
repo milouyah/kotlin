@@ -66,3 +66,62 @@ val targetFolder: String by inject()
 
 ### 결론:
 프로젝트의 구조와 요구 사항에 따라 위 방법 중 하나를 선택하면 됩니다. 가장 간단하고 많이 사용되는 방식은 `object`를 사용하는 첫 번째 방법입니다. 하지만 경로를 외부에서 설정할 수 있는 유연성이 필요하다면 환경 변수를 활용하는 것도 좋은 방법입니다.
+
+
+# Config File
+
+Kotlin에서 `Config`를 정의하는 파일 이름과 다른 패키지에서 접근하는 방법을 설명하겠습니다.
+
+### 1. **파일 이름**
+Kotlin에서는 파일 이름과 클래스 이름이 반드시 일치할 필요가 없습니다. `object`로 `Config`를 정의하는 경우, 파일 이름을 자유롭게 설정할 수 있습니다. 일반적으로는 `Config.kt`처럼 의미 있는 이름을 짓는 것이 좋습니다.
+
+예:
+```kotlin
+// Config.kt
+package com.example.config
+
+object Config {
+    const val TARGET_FOLDER = "/your/target/folder/path"
+}
+```
+
+### 2. **다른 패키지에서 접근하는 방법**
+
+다른 패키지에서 `Config`에 접근하려면 `import` 키워드를 사용해야 합니다. `Config`가 `com.example.config` 패키지에 정의되어 있다고 가정하면, 다른 패키지에서 아래와 같이 접근할 수 있습니다.
+
+#### 예: 다른 패키지에서 `Config`를 사용하는 방법
+
+```kotlin
+// 다른 패키지의 파일 (예: com.example.app.Main.kt)
+package com.example.app
+
+import com.example.config.Config  // Config import
+
+fun main() {
+    println("Target folder: ${Config.TARGET_FOLDER}")
+}
+```
+
+### 3. **구조 설명**
+- **`Config` 파일 경로:** `com.example.config.Config`
+  - `package com.example.config` 선언으로 인해 `Config`는 `com.example.config` 패키지에 속하게 됩니다.
+  
+- **다른 패키지에서 접근:** 다른 패키지(예: `com.example.app`)에서 `Config`에 접근하려면, `import`문을 사용하여 `Config` 객체를 가져옵니다. 이후 `Config.TARGET_FOLDER`와 같은 방식으로 전역 상수나 변수를 사용할 수 있습니다.
+
+### 4. **패키지 구조 예시**
+```
+src/
+│
+├── com/
+│   ├── example/
+│   │   ├── config/
+│   │   │   └── Config.kt
+│   │   ├── app/
+│   │   │   └── Main.kt
+```
+
+위 구조에서 `Config.kt`는 `com.example.config` 패키지에 속하고, `Main.kt`는 `com.example.app` 패키지에 속합니다. `Main.kt`에서 `Config`를 사용하려면 `import com.example.config.Config`를 통해 접근하면 됩니다.
+
+### 요약:
+- **파일 이름:** `Config.kt`로 명명할 수 있습니다.
+- **다른 패키지에서 접근:** `import com.example.config.Config`와 같은 형태로 접근한 후, `Config.TARGET_FOLDER`처럼 사용합니다.

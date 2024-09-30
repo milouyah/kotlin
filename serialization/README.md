@@ -16,8 +16,8 @@ Maven 프로젝트의 pom.xml 파일에 Kotlin Serialization 라이브러리를 
 
 Kotlin Serialization을 Maven에서 사용하기 위해 Kotlin 플러그인을 추가합니다. Maven의 kotlin-maven-plugin에 serialization 옵션을 활성화해 주어야 합니다.
 
-pom.xml의 <build> 섹션에 다음 플러그인을 추가하세요:
-
+pom.xml의 `<build>` 섹션에 다음 플러그인을 추가하세요:
+```python
 <build>
     <plugins>
         <plugin>
@@ -40,6 +40,7 @@ pom.xml의 <build> 섹션에 다음 플러그인을 추가하세요:
         </plugin>
     </plugins>
 </build>
+```
 
 이 설정을 통해 Maven이 Kotlin Serialization을 컴파일 시점에 포함시킬 수 있도록 합니다.
 

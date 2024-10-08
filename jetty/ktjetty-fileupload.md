@@ -1,3 +1,45 @@
+#
+
+Kotlin 또는 Java에서는 폴더와 그 안의 모든 파일 및 하위 디렉토리를 한 명령으로 삭제하는 기능을 기본적으로 제공하지 않지만, 외부 라이브러리를 사용하면 가능합니다. 예를 들어 Apache Commons IO 라이브러리의 FileUtils 클래스를 사용하면 한 명령으로 폴더와 그 내부의 모든 파일을 삭제할 수 있습니다.
+
+Apache Commons IO 라이브러리를 사용한 폴더 삭제
+
+Gradle 의존성 추가
+
+먼저, build.gradle 파일에 다음 의존성을 추가합니다.
+
+implementation("commons-io:commons-io:2.11.0")
+
+폴더 삭제 코드
+
+Apache Commons IO의 FileUtils.deleteDirectory() 메서드를 사용하면 한 명령으로 폴더 전체를 삭제할 수 있습니다.
+
+import org.apache.commons.io.FileUtils
+import java.io.File
+
+fun main() {
+    val targetDir = File("target")
+
+    if (targetDir.exists()) {
+        // 폴더 전체 삭제
+        FileUtils.deleteDirectory(targetDir)
+        println("폴더와 그 안의 모든 파일이 삭제되었습니다.")
+    } else {
+        println("폴더가 존재하지 않습니다.")
+    }
+}
+
+설명
+
+FileUtils.deleteDirectory(): 이 메서드는 폴더와 그 안에 있는 모든 파일 및 하위 디렉토리를 한 번에 삭제합니다.
+
+존재 여부 확인: targetDir.exists()로 폴더가 존재하는지 확인한 후 삭제를 수행합니다.
+
+
+Apache Commons IO 없이 기본 기능만으로 한 명령으로 삭제할 수 있는 방법은 없습니다. 하지만 위와 같이 외부 라이브러리를 사용하면 간편하게 폴더 전체를 삭제할 수 있습니다.
+
+
+#
 Kotlin과 Jetty를 사용하여 ZIP 파일을 업로드하고 이를 target 폴더에 풀어 JSON 형식으로 응답하는 예제를 작성하려면 다음 단계를 따를 수 있습니다.
 
 1. Maven 또는 Gradle 의존성 추가

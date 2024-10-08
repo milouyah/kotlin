@@ -1,3 +1,82 @@
+폴더 자체는 그대로 두고, 폴더 안의 내용만 삭제하려면 Apache Commons IO 라이브러리의 FileUtils.cleanDirectory() 메서드를 사용할 수 있습니다. 이 메서드는 폴더의 내용을 삭제하지만, 폴더 자체는 삭제하지 않습니다.
+
+Apache Commons IO를 사용하여 폴더 내부 내용만 삭제하는 방법
+
+Gradle 의존성 추가
+
+먼저, build.gradle 파일에 Apache Commons IO 라이브러리 의존성을 추가합니다.
+
+implementation("commons-io:commons-io:2.11.0")
+
+Kotlin 코드 예제
+
+import org.apache.commons.io.FileUtils
+import java.io.File
+
+fun main() {
+    val targetDir = File("target")
+
+    if (targetDir.exists() && targetDir.isDirectory) {
+        // 폴더 내용만 삭제 (폴더는 유지)
+        FileUtils.cleanDirectory(targetDir)
+        println("폴더 안의 모든 파일이 삭제되었습니다.")
+    } else {
+        println("폴더가 존재하지 않거나 디렉토리가 아닙니다.")
+    }
+}
+
+설명
+
+FileUtils.cleanDirectory(): 이 메서드는 지정된 폴더 내부의 모든 파일 및 하위 폴더를 삭제하지만, 폴더 자체는 남겨둡니다.
+
+폴더 존재 및 디렉토리 여부 확인: targetDir.exists()와 targetDir.isDirectory()로 폴더가 존재하고, 해당 경로가 디렉토리인지 확인한 후 폴더 안의 내용을 삭제합니다.
+
+
+Apache Commons IO 없이 폴더 내용을 삭제하는 방법
+
+Apache Commons IO 라이브러리를 사용하지 않고도, Kotlin 표준 라이브러리로 동일한 작업을 수행할 수 있습니다.
+
+Kotlin 표준 라이브러리를 사용한 폴더 내용 삭제 예제
+
+import java.io.File
+
+fun clearDirectoryContents(directory: File) {
+    if (directory.exists() && directory.isDirectory) {
+        directory.listFiles()?.forEach { file ->
+            if (file.isDirectory) {
+                // 하위 디렉토리를 재귀적으로 비우고 삭제
+                file.deleteRecursively()
+            } else {
+                // 파일 삭제
+                file.delete()
+            }
+        }
+    }
+}
+
+fun main() {
+    val targetDir = File("target")
+
+    if (targetDir.exists() && targetDir.isDirectory) {
+        clearDirectoryContents(targetDir)
+        println("폴더 안의 모든 파일이 삭제되었습니다.")
+    } else {
+        println("폴더가 존재하지 않거나 디렉토리가 아닙니다.")
+    }
+}
+
+설명
+
+deleteRecursively(): 파일이 디렉토리일 경우, 그 디렉토리를 재귀적으로 삭제합니다.
+
+폴더 안의 파일 및 디렉토리 삭제: listFiles()로 폴더 안의 파일 목록을 가져와서 각각을 삭제합니다.
+
+
+이 코드를 사용하면 폴더 내부의 파일과 하위 디렉토리만 삭제하고, 폴더 자체는 유지됩니다.
+
+
+
+
 #
 
 Kotlin 또는 Java에서는 폴더와 그 안의 모든 파일 및 하위 디렉토리를 한 명령으로 삭제하는 기능을 기본적으로 제공하지 않지만, 외부 라이브러리를 사용하면 가능합니다. 예를 들어 Apache Commons IO 라이브러리의 FileUtils 클래스를 사용하면 한 명령으로 폴더와 그 내부의 모든 파일을 삭제할 수 있습니다.

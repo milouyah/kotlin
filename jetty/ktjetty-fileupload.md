@@ -12,7 +12,7 @@ implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 2. 서블릿 작성
 
 ZIP 파일을 받으면 target 폴더에 압축을 해제하고, 해당 폴더의 파일 목록을 JSON으로 변환하여 응답하는 서블릿을 작성합니다.
-
+```kotlin
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -88,6 +88,8 @@ fun main() {
     server.start()
     server.join()
 }
+```
+
 
 3. 서버 설명
 

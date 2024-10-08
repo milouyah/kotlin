@@ -8,12 +8,13 @@ Gradle 의존성 추가
 
 먼저, build.gradle 파일에 다음 의존성을 추가합니다.
 
+```gradle
 implementation("commons-io:commons-io:2.11.0")
-
+```
 폴더 삭제 코드
 
 Apache Commons IO의 FileUtils.deleteDirectory() 메서드를 사용하면 한 명령으로 폴더 전체를 삭제할 수 있습니다.
-
+```
 import org.apache.commons.io.FileUtils
 import java.io.File
 
@@ -28,7 +29,7 @@ fun main() {
         println("폴더가 존재하지 않습니다.")
     }
 }
-
+```
 설명
 
 FileUtils.deleteDirectory(): 이 메서드는 폴더와 그 안에 있는 모든 파일 및 하위 디렉토리를 한 번에 삭제합니다.

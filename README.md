@@ -1,6 +1,7 @@
 # Kotlin
 
-* [Companion object](./kotlin-companion-object.md)
+* [Class](./class/README.md)
+  * [Companion object](./kotlin-companion-object.md)
 * [Constructor](./kotlin-constructor.md)
 * [Test coverage](./kotlin-test-coverage.md)
 

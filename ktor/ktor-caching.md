@@ -1,14 +1,17 @@
+# Ktor Caching
+
 Ktor에서 **캐싱(Caching)**은 클라이언트와 서버 간 데이터 요청을 최적화하고 네트워크 사용량을 줄이기 위해 중요한 역할을 합니다. Ktor는 HTTP 캐싱 메커니즘을 활용하여 캐싱 헤더를 설정하거나, 특정 데이터를 서버 쪽에서 캐싱할 수 있는 여러 방법을 제공합니다.
 
 
 ---
 
-1. HTTP 캐싱 헤더 설정
+## 1. HTTP 캐싱 헤더 설정
 
 HTTP 프로토콜이 제공하는 Cache-Control, ETag, Last-Modified 같은 헤더를 사용하여 캐싱을 구현할 수 있습니다.
 
 예제: Cache-Control 헤더 설정
 
+```
 install(CachingHeaders)
 
 routing {
@@ -17,6 +20,7 @@ routing {
         call.respondText("This is cacheable data.")
     }
 }
+```
 
 설명
 
@@ -28,12 +32,13 @@ CacheControl.MaxAge는 클라이언트가 데이터를 60초 동안 캐싱할 �
 
 ---
 
-2. ETag를 사용한 캐싱
+## 2. ETag를 사용한 캐싱
 
 ETag는 데이터의 고유 식별자를 클라이언트에 제공하여 데이터 변경 여부를 확인하고 필요 시에만 갱신을 수행합니다.
 
 예제: ETag 사용
 
+```
 routing {
     get("/data") {
         val data = "Hello, Cache!"
@@ -47,6 +52,7 @@ routing {
         }
     }
 }
+```
 
 설명
 
@@ -58,12 +64,13 @@ routing {
 
 ---
 
-3. 서버 측 캐싱
+## 3. 서버 측 캐싱
 
 서버에서 자주 사용되는 데이터를 메모리나 외부 캐싱 시스템(Redis 등)에 저장하여 처리 속도를 높일 수 있습니다.
 
 메모리 기반 캐싱 예제
 
+```
 val cache = mutableMapOf<String, String>()
 
 routing {
@@ -80,6 +87,7 @@ routing {
         }
     }
 }
+```
 
 설명
 
@@ -91,12 +99,13 @@ routing {
 
 ---
 
-4. 외부 캐싱 시스템 사용
+## 4. 외부 캐싱 시스템 사용
 
 Redis나 Memcached 같은 외부 캐싱 시스템을 사용하면 더 안정적이고 확장 가능한 캐싱을 구현할 수 있습니다.
 
 Redis와 Ktor를 연동한 캐싱
 
+```
 import io.lettuce.core.RedisClient
 import io.lettuce.core.api.sync.RedisCommands
 
@@ -117,6 +126,7 @@ routing {
         }
     }
 }
+```
 
 설명
 
@@ -128,12 +138,13 @@ Redis는 지속성과 확장성을 제공하며, 대규모 애플리케이션에
 
 ---
 
-5. Static 파일 캐싱
+## 5. Static 파일 캐싱
 
 정적 파일은 Static 플러그인을 통해 캐싱 가능합니다.
 
 정적 파일 캐싱 예제
 
+```
 install(StaticFiles) {
     static("/static") {
         files("resources/static")
@@ -147,17 +158,18 @@ routing {
         call.respondRedirect("/static/index.html")
     }
 }
-
+```
 
 ---
 
-6. 플러그인 사용 (외부 라이브러리)
+## 6. 플러그인 사용 (외부 라이브러리)
 
 외부 라이브러리(예: Caffeine, Guava)를 활용하면 더 세부적인 캐싱 전략을 구현할 수 있습니다.
 예를 들어, Caffeine은 JVM 기반의 고성능 캐싱 라이브러리입니다.
 
 Caffeine 캐싱 예제
 
+```
 val cache = Caffeine.newBuilder()
     .expireAfterWrite(10, TimeUnit.MINUTES)
     .maximumSize(100)
@@ -177,7 +189,7 @@ routing {
         }
     }
 }
-
+```
 
 ---
 

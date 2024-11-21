@@ -4,6 +4,7 @@
   * [Companion object](./class/companion-object.md)
 * [Constructor](./kotlin-constructor.md)
 * [Test coverage](./kotlin-test-coverage.md)
+* [Coroutine](./kotlin-coroutine.md)
 
 ## [Kotlin DataFrame](https://kotlin.github.io/dataframe/overview.html)
 
